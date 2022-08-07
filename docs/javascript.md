@@ -1,7 +1,7 @@
 # JavaScript & Typescript
 
-01. [JavaScript 주요 변천사](#01.javascript-주요-변천사)
-02. [웹앱의 구성요소](#02.웹어플리케이션(웹앱)의-구성요소)
+01. [JavaScript 주요 변천사](#01javascript-주요-변천사)
+02. [웹앱의 구성요소](#02웹어플리케이션(웹앱)의-구성요소)
 
 
 ## 01.JavaScript 주요 변천사
