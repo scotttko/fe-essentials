@@ -3,8 +3,7 @@
 01. [JavaScript 주요 변천사](#01javascript-주요-변천사)
 02. [웹앱의 구성요소](#02웹어플리케이션웹앱의-구성요소)
 03. [모던 JavaScript와 개발 환경](#03모던-javascript와-개발-환경)
-03. [Typescript vs. JavaScript](#04typescript-vs-javascript)
-
+04. [Typescript vs. JavaScript](#04typescript-vs-javascript)
 
 ## 01.JavaScript 주요 변천사
 
@@ -124,11 +123,11 @@ let x = 10; // 10이 어떤 데이터인지 알지 못함
 let weight: number = 80; //값이 number유형을 가짐을 알 수 있음 => 명시적, 해석의 여지 없음
 
 type Centimeter = number;
-let height: Centimeter = 176; //number 유형 뿐만 아니라 값의 의미까지 알 수 있음 =? 표현력 강화
+let height: Centimeter = 176; //number 유형 뿐만 아니라 값의 의미까지 알 수 있음 => 표현력 강화
 
 type RainbowColor = 'red' | 'orange' | 'yellow'; 
 let color: RainbowColor = 'orange';
-//타입 제공 -> 코드가 나타내는 표현력이 풍성해짐
+//타입 제공 => 코드가 나타내는 표현력이 풍성해짐
 ```
 
 타입스크립트가 트랜스파일러이기 때문에 가능함.
