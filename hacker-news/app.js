@@ -7,7 +7,7 @@ const container = document.getElementById("root");
 const store = {
   currentPage: 1,
 };
-
+//데이터 fetching 함수
 function getData(url) {
   ajax.open("GET", url, false);
   ajax.send();
@@ -18,8 +18,18 @@ function getData(url) {
 function newsFeed() {
   const newsFeed = getData(NEWS_URL);
   const newsList = [];
+  let template = `
+    <div>
+      <ul>
+        {{__news_feed__}}
+      </ul>
+      <div>
+        <a href="#/page/{{__prev_page}}">이전 페이지</a>
+        <a href="#/page/{{__next_page}}">다음 페이지</a>
+      </div>
+    </div>
+  `;
 
-  newsList.push("<ul>");
   for (let i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++) {
     newsList.push(`
     <li>
@@ -30,22 +40,19 @@ function newsFeed() {
   `);
   }
 
-  newsList.push("</ul>");
+  template = template.replace("{{__news_feed__}}", newsList.join(""));
+  template = template.replace(
+    "{{__prev_page}}",
+    store.currentPage > 1 ? store.currentPage - 1 : 1
+  );
+  template = template.replace(
+    "{{__next_page}}",
+    store.currentPage * 10 >= newsFeed.length
+      ? store.currentPage
+      : store.currentPage + 1
+  );
 
-  newsList.push(`
-    <div>
-      <a href="#/page/${
-        store.currentPage > 1 ? store.currentPage - 1 : 1 //이전페이지 방어코드
-      }">이전 페이지</a>
-      <a href="#/page/${
-        store.currentPage * 10 >= newsFeed.length
-          ? store.currentPage
-          : store.currentPage + 1
-      }">다음 페이지</a>
-    </div>
-  `);
-
-  container.innerHTML = newsList.join("");
+  container.innerHTML = template;
 }
 
 function newsDetail() {
