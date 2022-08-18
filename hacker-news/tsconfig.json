@@ -3,6 +3,7 @@
     "strict": true,
     "target": "ES5",
     "module": "CommonJS",
+    "lib": ["ES2016", "DOM"],
     "alwaysStrict": true,
     "noImplicitAny": true,
     "noImplicitThis": true,
