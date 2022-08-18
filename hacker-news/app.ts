@@ -37,14 +37,45 @@ const store: Store = {
   currentPage: 1,
   feeds: [],
 };
+
+class Api {
+  url: string;
+  ajax: XMLHttpRequest;
+
+  constructor(url: string) {
+    this.url = url;
+    this.ajax = new XMLHttpRequest();
+  }
+
+  //protected: 클래스 외부로 인스턴스 객체로 노출되지 않음
+  protected getRequest<AjaxResponse>(): AjaxResponse {
+    this.ajax.open("GET", this.url, false);
+    this.ajax.send();
+
+    return JSON.parse(this.ajax.response);
+  }
+}
+
+class NewsFeedApi extends Api {
+  getData(): NewsFeed[] {
+    return this.getRequest<NewsFeed[]>();
+  }
+}
+
+class NewsDetailApi extends Api {
+  getData(): NewsDetail {
+    return this.getRequest<NewsDetail>();
+  }
+}
+
 //데이터 fetching 함수
 //Generic: 호출할 때 기술된 타입을 반환하는 타입으로 사용
-function getData<AjaxResponse>(url: string): AjaxResponse {
-  ajax.open("GET", url, false);
-  ajax.send();
+// function getData<AjaxResponse>(url: string): AjaxResponse {
+//   ajax.open("GET", url, false);
+//   ajax.send();
 
-  return JSON.parse(ajax.response);
-}
+//   return JSON.parse(ajax.response);
+// }
 
 //읽음 표시 위한 데이터 추가 함수
 function makeFeed(feeds: NewsFeed[]): NewsFeed[] {
@@ -63,6 +94,7 @@ function updateView(html: string): void {
   }
 }
 function newsFeed(): void {
+  const api = new NewsFeedApi(NEWS_URL); //클래스 인스턴스 사용 -> 가독성 향상
   let newsFeed: NewsFeed[] = store.feeds;
   const newsList = [];
   let template = `
@@ -91,7 +123,7 @@ function newsFeed(): void {
   `;
 
   if (newsFeed.length === 0) {
-    newsFeed = store.feeds = makeFeed(getData<NewsFeed[]>(NEWS_URL));
+    newsFeed = store.feeds = makeFeed(api.getData());
   }
 
   for (let i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++) {
@@ -161,7 +193,8 @@ function makeComment(comments: NewsComment[]): string {
 
 function newsDetail(): void {
   const id = location.hash.substring(7); //# 제거
-  const newsContent = getData<NewsDetail>(CONTENTS_URL.replace("@id", id));
+  const api = new NewsDetailApi(CONTENTS_URL.replace("@id", id));
+  const newsContent = api.getData();
   let template = `
     <div class="bg-gray-600 min-h-screen pb-8">
       <div class="bg-white text-xl">
