@@ -38,35 +38,59 @@ const store: Store = {
   feeds: [],
 };
 
-class Api {
-  url: string;
-  ajax: XMLHttpRequest;
+//extensd 대신 mixin 사용이유: extend는 코드에 적시되어야 하는 상속 방법 -> 유연하지 못함
+// extends는 다중 상속 지원하지 않음: 여러개의 상위 클래스를 상속할 수 없음
+function applyApiMixins(targetClass: any, baseClasses: any[]): void {
+  baseClasses.forEach((baseClass) => {
+    Object.getOwnPropertyNames(baseClass.prototype).forEach((name) => {
+      const descriptor = Object.getOwnPropertyDescriptor(
+        baseClass.prototype,
+        name
+      );
 
-  constructor(url: string) {
-    this.url = url;
-    this.ajax = new XMLHttpRequest();
-  }
+      if (descriptor) {
+        Object.defineProperty(targetClass.prototype, name, descriptor);
+      }
+    });
+  });
+}
+
+class Api {
+  // url: string;
+  // ajax: XMLHttpRequest;
+
+  // constructor(url: string) {
+  //   this.url = url;
+  //   this.ajax = new XMLHttpRequest();
+  // }
 
   //protected: 클래스 외부로 인스턴스 객체로 노출되지 않음
-  protected getRequest<AjaxResponse>(): AjaxResponse {
-    this.ajax.open("GET", this.url, false);
-    this.ajax.send();
+  getRequest<AjaxResponse>(url: string): AjaxResponse {
+    const ajax = new XMLHttpRequest();
+    ajax.open("GET", url, false);
+    ajax.send();
 
-    return JSON.parse(this.ajax.response);
+    return JSON.parse(ajax.response);
   }
 }
 
-class NewsFeedApi extends Api {
+class NewsFeedApi {
   getData(): NewsFeed[] {
-    return this.getRequest<NewsFeed[]>();
+    return this.getRequest<NewsFeed[]>(NEWS_URL);
   }
 }
 
-class NewsDetailApi extends Api {
-  getData(): NewsDetail {
-    return this.getRequest<NewsDetail>();
+class NewsDetailApi {
+  getData(id: string): NewsDetail {
+    return this.getRequest<NewsDetail>(CONTENTS_URL.replace("@id", id));
   }
 }
+
+interface NewsFeedApi extends Api {};
+interface NewsDetailApi extends Api {};
+
+applyApiMixins(NewsFeedApi, [Api]);
+applyApiMixins(NewsDetailApi, [Api]);
 
 //데이터 fetching 함수
 //Generic: 호출할 때 기술된 타입을 반환하는 타입으로 사용
@@ -94,7 +118,7 @@ function updateView(html: string): void {
   }
 }
 function newsFeed(): void {
-  const api = new NewsFeedApi(NEWS_URL); //클래스 인스턴스 사용 -> 가독성 향상
+  const api = new NewsFeedApi(); //클래스 인스턴스 사용 -> 가독성 향상
   let newsFeed: NewsFeed[] = store.feeds;
   const newsList = [];
   let template = `
@@ -193,8 +217,8 @@ function makeComment(comments: NewsComment[]): string {
 
 function newsDetail(): void {
   const id = location.hash.substring(7); //# 제거
-  const api = new NewsDetailApi(CONTENTS_URL.replace("@id", id));
-  const newsContent = api.getData();
+  const api = new NewsDetailApi();
+  const newsContent = api.getData(id);
   let template = `
     <div class="bg-gray-600 min-h-screen pb-8">
       <div class="bg-white text-xl">
