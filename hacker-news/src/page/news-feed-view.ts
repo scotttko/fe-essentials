@@ -1,6 +1,7 @@
 import View from "../core/view";
 import { NewsFeedApi } from "../core/api";
 import { NewsFeed, NewsStore } from "../types";
+import { NEWS_URL } from "../config";
 
 const template = `
     <div class="bg-gray-600 min-h-screen">
@@ -35,19 +36,27 @@ export default class NewsFeedView extends View {
     super(containerId, template);
 
     this.store = store;
-    this.api = new NewsFeedApi(); //클래스 인스턴스 사용 -> 가독성 향상
+    this.api = new NewsFeedApi(NEWS_URL); //클래스 인스턴스 사용 -> 가독성 향상
     // this.feeds = window.store.feeds;
     // const newsList = [];
-
-    if (!this.store.hasFeeds) {
-      this.store.setFeeds(this.api.getData());
-      // this.feeds = window.store.feeds = this.api.getData();
-      // this.makeFeed();
-    }
   }
 
   render(): void {
     this.store.currentPage = Number(location.hash.substring(7) || 1);
+
+    if (!this.store.hasFeeds) {
+      this.api.getData((feeds: NewsFeed[]) => {
+        this.store.setFeeds(feeds);
+        this.renderView();
+      });
+      // this.feeds = window.store.feeds = this.api.getData();
+      // this.makeFeed();
+    }this.renderView();
+
+
+  }
+
+  renderView = () => {
     for (
       let i = (this.store.currentPage - 1) * 10;
       i < this.store.currentPage * 10;
@@ -83,5 +92,5 @@ export default class NewsFeedView extends View {
     this.setTemplateData("next_page", String(this.store.nextPage));
 
     this.updateView();
-  }
+  };
 }

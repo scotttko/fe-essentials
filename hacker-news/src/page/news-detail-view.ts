@@ -41,24 +41,19 @@ export default class NewsDetailView extends View {
 
   render() {
     const id = location.hash.substring(7); //# 제거
-    const api = new NewsDetailApi();
-    const newsContent = api.getData(id);
+    const api = new NewsDetailApi(CONTENTS_URL.replace('@id', id));
+    api.getData((data: NewsDetail) => {
+      const { title, content, comments } = data;
 
-    //읽은 글의 읽음 표시
-    // for (let i = 0; i < window.store.feeds.length; i++) {
-    //   if (window.store.feeds[i].id === Number(id)) {
-    //     window.store.feeds[i].read = true;
-    //     break;
-    //   }
-    // }
-    this.store.makeRead(Number(id));
-
-    this.setTemplateData("comments", this.makeComment(newsContent.comments));
-    this.setTemplateData("currentPage", String(this.store.currentPage));
-    this.setTemplateData("title", newsContent.title);
-    this.setTemplateData("content", newsContent.content);
-
-    this.updateView();
+      this.store.makeRead(Number(id));
+  
+      this.setTemplateData("comments", this.makeComment(comments));
+      this.setTemplateData("currentPage", String(this.store.currentPage));
+      this.setTemplateData("title", title);
+      this.setTemplateData("content", content);
+  
+      this.updateView();
+    })
   }
 
   makeComment(comments: NewsComment[]): string {
