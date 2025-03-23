@@ -7,7 +7,7 @@ function increment() {
   //접근한 변수를 클로저라는 공간에 저장, 호출되었을 때 저장된 값을 유지하면서 반환
   let saveNumber = 1;
 
-  return function () {
+  return function innerFunction() {
     return saveNumber++;
   };
 }
